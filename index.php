@@ -36,14 +36,8 @@ if ($formSubmitted) {
     $rightlyAnswered = intval($_POST['answer']) === $previousQuestion->getRightAnswer()->getId();
 }
 
-$statement = $databaseHandler->query('SELECT * FROM `question` ORDER BY `rank` LIMIT 1');
-$questionData = $statement->fetch();
-$question = new Question(
-    $questionData['id'],
-    $questionData['text'],
-    null,
-    $questionData['rank']
-);
+$question = new Question();
+$question = $question->findById(1);
 
 $statement = $databaseHandler->prepare('SELECT * FROM `answer` WHERE `question_id` = :questionId');
 $statement->execute([':questionId' => $question->getId()]);

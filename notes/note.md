@@ -367,15 +367,103 @@ Dans Question, j'ai la propriété  private ?Answer $rightAnswer;
 J'ai ajouter un seteur pour pouvoir modifier la Question et faire passer Answer dans la Question.
 getRightAnswer() est un Answer qui a un id et je peux le chercher via getId().
 
-//DatabaseHandler
-22. Je voudrais avoir une classe qui centralise les appels dans la base de données.
-Parce que je crée des PDO partout. Ce serais bien de créer une classe qui ferra des appels dans la base de données.
-Dans le constructeur des classe je peux ajouter cette propriété de PDO qui sera obligatoire pour conscruire des classes.
+22. Je voudrais créer des méthodes dans Question et dans Answer qui vont faire des requettes dans la base de données, d'interpréter des resultats et de les transformer en objets Question et Answer.
 
- public function __construct(
-        ?int $id = null,
-        string $text = '',
-        ?Answer $rightAnswer = null,
-        ?int $rank = null
-    ) 
+23. Je crée une méthode findById() dans Question qui va me chercher une question en particulier.
+Ce serait une méthode à laquelle je passerait un id et qui m'enverrait un objet Question.
 
+  public function findById(int $id): ?Question
+    {
+        $databaseHandler = new PDO('mysql:host=localhost;dbname=quizpoo', 'root', 'root');
+        $statement = $databaseHandler->prepare('SELECT * FROM `question` WHERE `id` = :id');
+        $statement->execute([':id' => $id]);
+        $statement->fetchAll();
+    }
+
+24. Pour vérifier que la méthode fonctionne, je dois pouvoir l'appeler cette méthode dans l'index.
+
+Question.php je fais un var_dump();
+ public function findById(int $id): ?Question
+    {
+        $databaseHandler = new PDO('mysql:host=localhost;dbname=quizpoo', 'root', 'root');
+        $statement = $databaseHandler->prepare('SELECT * FROM `question` WHERE `id` = :id');
+        $statement->execute([':id' => $id]);
+
+        var_dump($statement->fetch());
+        die();
+    }
+
+A l'index 
+$question = new Question();
+$question->findById(3);
+die();
+
+J'ai pu récupérer la question 3 sous forme d'un tableau.
+
+(array) [8 elements]
+id: (string) "3"
+0: (string) "3"
+text: (string) "En 1582, le pape Grégoire XIII a décidé de réformer le calendrier instauré par Jules César. Mais quel était le premier mois du calendrier julien?"
+1: (string) "En 1582, le pape Grégoire XIII a décidé de réformer le calendrier instauré par Jules César. Mais quel était le premier mois du calendrier julien?"
+right_answer_id: (string) "12"
+2: (string) "12"
+rank: (string) "3"
+3: (string) "3"
+
+25. Je voudrais récupérer la question sous forme l'objet. Je passe les paramètres de la Question dans new Question().
+
+    $questionData = $statement->fetch();
+        $question = new Question(
+            $questionData['id'],
+            $questionData['text'],
+            null,
+            $questionData['rank']
+        );
+
+26. J'ajoute un var_dump() pour vérifier.
+
+    $questionData = $statement->fetch();
+        $question = new Question(
+            $questionData['id'],
+            $questionData['text'],
+            null,
+            $questionData['rank']
+        );
+        var_dump($question);
+        die();
+
+Cela me donner le résultat suivant:
+
+Question (object) [Object ID #4][4 properties]
+id:Question:private: (integer) 3 
+text:Question:private: (string) "En 1582, le pape Grégoire XIII a décidé de réformer le calendrier instauré par Jules César. Mais quel était le premier mois du calendrier julien?"
+rightAnswer:Question:private: (null) NULL
+rank:Question:private: (integer) 3 
+
+27. Je retourne (return) new Question()
+Maintenant j'ai une méthode dans la classe qui me permet de chercher une question en appellant cette méthode.
+Partout je peux faire $question = new Question(); $question->findById(1);, la méthode va me chercher la question 1.
+
+        $questionData = $statement->fetch();
+        return new Question(
+            $questionData['id'],
+            $questionData['text'],
+            null,
+            $questionData['rank']
+        );
+
+28. Maintenant pour chercher la première question à l'index,
+je peux supprimer tout ceci.
+
+$statement = $databaseHandler->query('SELECT * FROM `question` ORDER BY `rank` LIMIT 1');
+$questionData = $statement->fetch();
+$question = new Question(
+    $questionData['id'],
+    $questionData['text'],
+    null,
+    $questionData['rank']
+);
+
+ Et écrire ceci.
+ $question = new Question();
+$question = $question->findById(1);

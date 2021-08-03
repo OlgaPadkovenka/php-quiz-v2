@@ -20,6 +20,21 @@ class Question
         $this->rank = $rank;
     }
 
+    public function findById(int $id): ?Question
+    {
+        $databaseHandler = new PDO('mysql:host=localhost;dbname=quizpoo', 'root', 'root');
+        $statement = $databaseHandler->prepare('SELECT * FROM `question` WHERE `id` = :id');
+        $statement->execute([':id' => $id]);
+
+        $questionData = $statement->fetch();
+        return new Question(
+            $questionData['id'],
+            $questionData['text'],
+            null,
+            $questionData['rank']
+        );
+    }
+
     /**
      * Get the value of id
      */
