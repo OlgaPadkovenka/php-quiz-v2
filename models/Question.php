@@ -5,18 +5,18 @@ class Question
 
     private ?int $id;
     private string $text;
-    private ?int $rightAnswer;
+    private ?int $rightAnswerId;
     private ?int $rank;
 
     public function __construct(
         ?int $id = null,
         string $text = '',
-        ?int $rightAnswer = null,
+        ?int $rightAnswerId = null,
         ?int $rank = null
     ) {
         $this->id = $id;
         $this->text = $text;
-        $this->rightAnswer = $rightAnswer;
+        $this->rightAnswerId = $rightAnswerId;
         $this->rank = $rank;
     }
 
@@ -39,9 +39,9 @@ class Question
     /**
      * Get the value of rightAnswer
      */
-    public function getRightAnswer()
+    public function getRightAnswerId()
     {
-        return $this->rightAnswer;
+        return $this->rightAnswerId;
     }
 
     /**

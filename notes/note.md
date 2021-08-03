@@ -4,7 +4,7 @@ class Question
 
     private ?int $id;
     private string $text;
-    private ?int $rightAnswer;
+    private ?int $rightAnswerId;
     private ?int $rank;
 
 2. Je crée une classe Answer. Je fais le conctructeur et les geutteurs pour pouvoir accéder aux propriétés.
@@ -17,4 +17,13 @@ class Answer
     private int $questionId;
 }
 
-3. 
+3. Je récupère la question actuelle dans la base de données.
+
+$statement = $databaseHandler->query('SELECT * FROM `question` ORDER BY `rank` LIMIT 1');
+$questionData = $statement->fetch();
+$question = new Question(
+    $questionData['id'],
+    $questionData['text'],
+    $questionData['right_answer_id'],
+    $questionData['rank']
+);

@@ -2,7 +2,7 @@
 
 include './models/Question.php';
 
-$databaseHandler = new PDO('mysql:host=localhost;dbname=quizv1', 'root', 'root');
+$databaseHandler = new PDO('mysql:host=localhost;dbname=quizpoo', 'root', 'root');
 
 $formSubmitted = $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['answer']) && isset($_POST['current-question']);
 
@@ -33,11 +33,7 @@ $questionData = $statement->fetch();
 $question = new Question(
     $questionData['id'],
     $questionData['text'],
-    $questionData['answer1'],
-    $questionData['answer2'],
-    $questionData['answer3'],
-    $questionData['answer4'],
-    $questionData['right_answer'],
+    $questionData['right_answer_id'],
     $questionData['rank']
 );
 
