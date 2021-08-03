@@ -36,11 +36,8 @@ if ($formSubmitted) {
     $rightlyAnswered = intval($_POST['answer']) === $previousQuestion->getRightAnswer()->getId();
 }
 
-$question = new Question();
-$question = $question->findById(1);
-
-$answer = new Answer();
-$answers = $answer->findByQuestion($question);
+$question = Question::findById(2);
+$answers = Answer::findByQuestion($question);
 
 ?>
 

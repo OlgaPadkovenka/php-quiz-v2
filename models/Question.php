@@ -20,7 +20,7 @@ class Question
         $this->rank = $rank;
     }
 
-    public function findById(int $id): ?Question
+    static public function findById(int $id): ?Question
     {
         $databaseHandler = new PDO('mysql:host=localhost;dbname=quizpoo', 'root', 'root');
         $statement = $databaseHandler->prepare('SELECT * FROM `question` WHERE `id` = :id');

@@ -587,6 +587,5 @@ Je les transforme en objet:
         return $answers;
 
 36. A l'index, je peux écrire ceci
+$answer = new Answer();
 $answers = $answer->findByQuestion($question);
-
-37. 
