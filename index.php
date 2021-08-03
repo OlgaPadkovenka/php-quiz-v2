@@ -1,6 +1,7 @@
 <?php
 
 include './models/Question.php';
+include './models/Answer.php';
 
 $databaseHandler = new PDO('mysql:host=localhost;dbname=quizpoo', 'root', 'root');
 
@@ -16,16 +17,12 @@ if ($formSubmitted) {
     $previousQuestion = new Question(
         $questionData['id'],
         $questionData['text'],
-        $questionData['answer1'],
-        $questionData['answer2'],
-        $questionData['answer3'],
-        $questionData['answer4'],
-        $questionData['right_answer'],
+        $questionData['right_answer_id'],
         $questionData['rank']
     );
 
     //je vérifie, si la réponse fournie par l'utilisateur est une bonne réponse.
-    $rightlyAnswered = intval($_POST['answer']) === $previousQuestion->getRightAnswer();
+    $rightlyAnswered = intval($_POST['answer']) === $previousQuestion->getRightAnswerId();
 }
 
 $statement = $databaseHandler->query('SELECT * FROM `question` ORDER BY `rank` LIMIT 1');
@@ -37,6 +34,21 @@ $question = new Question(
     $questionData['rank']
 );
 
+$statement = $databaseHandler->prepare('SELECT * FROM `answer` WHERE `question_id` = :questionId');
+$statement->execute([':questionId' => $question->getId()]);
+$allAnswersData = $statement->fetchAll();
+foreach ($allAnswersData as $answerData) {
+    $answer = new Answer(
+        $answerData['id'],
+        $answerData['text'],
+    );
+    $answer->setQuestion($question);
+    $answers[] = $answer;
+
+    var_dump($answer);
+    var_dump($answer->getQuestion());
+    var_dump($answer->getQuestion()->getText());
+}
 
 ?>
 
@@ -75,7 +87,7 @@ $question = new Question(
                 <?php if ($rightlyAnswered) : ?>
                     Bravo, c'était la bonne réponse!
                 <?php else : ?>
-                    Hé non! La bonne réponse était <strong>...</strong>
+                    Hé non! La bonne réponse était <strong></strong>
                 <?php endif; ?>
             </div>
         <?php endif; ?>
@@ -83,22 +95,14 @@ $question = new Question(
         <form id="question-form" method="post">
             <p id="current-question-text" class="question-text"><?= $question->getText() ?></p>
             <div id="answers" class="d-flex flex-column">
-                <div class="custom-control custom-radio mb-2">
-                    <input class="custom-control-input" type="radio" name="answer" id="answer1" value="1">
-                    <label class="custom-control-label" for="answer1" id="answer1-caption"><?= $question->getAnswer1() ?></label>
-                </div>
-                <div class="custom-control custom-radio mb-2">
-                    <input class="custom-control-input" type="radio" name="answer" id="answer2" value="2">
-                    <label class="custom-control-label" for="answer2" id="answer2-caption"><?= $question->getAnswer2() ?></label>
-                </div>
-                <div class="custom-control custom-radio mb-2">
-                    <input class="custom-control-input" type="radio" name="answer" id="answer3" value="3">
-                    <label class="custom-control-label" for="answer3" id="answer3-caption"><?= $question->getAnswer3() ?></label>
-                </div>
-                <div class="custom-control custom-radio mb-2">
-                    <input class="custom-control-input" type="radio" name="answer" id="answer4" value="4">
-                    <label class="custom-control-label" for="answer4" id="answer4-caption"><?= $question->getAnswer4() ?></label>
-                </div>
+
+                <?php foreach ($answers as $answer) : ?>
+                    <div class="custom-control custom-radio mb-2">
+                        <input class="custom-control-input" type="radio" name="answer" id="<?= $answer->getId() ?>" value="<?= $answer->getId() ?>">
+                        <label class="custom-control-label" for="<?= $answer->getId() ?>" id="answer1-caption"><?= $answer->getText() ?></label>
+                    </div>
+                <?php endforeach ?>
+
             </div>
             <input type="hidden" name="current-question" value="<?= $question->getId() ?>" />
             <button type="submit" class="btn btn-primary">Valider</button>

@@ -4,16 +4,15 @@ class Answer
 {
     private ?int $id;
     private string $text;
-    private int $questionId;
+    private ?Question $question;
 
     public function __construct(
         ?int $id = null,
         string $text = '',
-        int $questionId = null,
+
     ) {
         $this->id = $id;
         $this->text = $text;
-        $this->questionId = $questionId;
     }
 
     /**
@@ -35,8 +34,16 @@ class Answer
     /**
      * Get the value of questionId
      */
-    public function getQuestionId()
+    public function getQuestion(): ?Question
     {
-        return $this->questionId;
+        return $this->question;
+    }
+
+    /**
+     * Set the value of question
+     */
+    public function setQuestion(?Question $question)
+    {
+        $this->question = $question;
     }
 }
