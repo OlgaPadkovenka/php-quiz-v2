@@ -33,7 +33,7 @@ if ($formSubmitted) {
     );
 
     //je vérifie, si la réponse fournie par l'utilisateur est une bonne réponse.
-    $rightlyAnswered = intval($_POST['answer']) === $previousQuestion->getRightAnswerId();
+    $rightlyAnswered = intval($_POST['answer']) === $previousQuestion->getRightAnswer()->getId();
 }
 
 $statement = $databaseHandler->query('SELECT * FROM `question` ORDER BY `rank` LIMIT 1');
@@ -41,6 +41,7 @@ $questionData = $statement->fetch();
 $question = new Question(
     $questionData['id'],
     $questionData['text'],
+    null,
     $questionData['rank']
 );
 
@@ -54,10 +55,6 @@ foreach ($allAnswersData as $answerData) {
     );
     $answer->setQuestion($question);
     $answers[] = $answer;
-
-    var_dump($answer);
-    var_dump($answer->getQuestion());
-    var_dump($answer->getQuestion()->getText());
 }
 
 ?>
@@ -97,7 +94,7 @@ foreach ($allAnswersData as $answerData) {
                 <?php if ($rightlyAnswered) : ?>
                     Bravo, c'était la bonne réponse!
                 <?php else : ?>
-                    Hé non! La bonne réponse était <strong></strong>
+                    Hé non! La bonne réponse était <strong><?= $previousQuestion->getRightAnswer()->getText() ?></strong>
                 <?php endif; ?>
             </div>
         <?php endif; ?>

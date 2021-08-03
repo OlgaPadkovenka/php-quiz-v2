@@ -359,4 +359,23 @@ parce que je n'ai en ai pas besoin.
         null,
     );
 
-    21. 
+21. Pour pouvoir vérifier la bonne réponse
+  //je vérifie, si la réponse fournie par l'utilisateur est une bonne réponse.
+    $rightlyAnswered = intval($_POST['answer']) === $previousQuestion->getRightAnswer()->getId();
+
+Dans Question, j'ai la propriété  private ?Answer $rightAnswer;
+J'ai ajouter un seteur pour pouvoir modifier la Question et faire passer Answer dans la Question.
+getRightAnswer() est un Answer qui a un id et je peux le chercher via getId().
+
+//DatabaseHandler
+22. Je voudrais avoir une classe qui centralise les appels dans la base de données.
+Parce que je crée des PDO partout. Ce serais bien de créer une classe qui ferra des appels dans la base de données.
+Dans le constructeur des classe je peux ajouter cette propriété de PDO qui sera obligatoire pour conscruire des classes.
+
+ public function __construct(
+        ?int $id = null,
+        string $text = '',
+        ?Answer $rightAnswer = null,
+        ?int $rank = null
+    ) 
+
