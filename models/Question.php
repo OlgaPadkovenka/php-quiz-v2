@@ -27,6 +27,11 @@ class Question
         $statement->execute([':id' => $id]);
 
         $questionData = $statement->fetch();
+
+        if ($questionData === false) {
+            return null;
+        }
+
         return new Question(
             $questionData['id'],
             $questionData['text'],

@@ -15,6 +15,24 @@ class Answer
         $this->text = $text;
     }
 
+    public function findByQuestion(Question $question)
+    {
+        $databaseHandler = new PDO('mysql:host=localhost;dbname=quizpoo', 'root', 'root');
+        $statement = $databaseHandler->prepare('SELECT * FROM `answer` WHERE `question_id` = :questionId');
+        $statement->execute([':questionId' => $question->getId()]);
+        $answersData = $statement->fetchAll();
+        foreach ($answersData as $answerData) {
+            $answers[] = new Answer(
+                $answerData['id'],
+                $answerData['text'],
+                $question
+            );
+        }
+        //var_dump($answers);
+        //die();
+        return $answers;
+    }
+
     /**
      * Get the value of id
      */

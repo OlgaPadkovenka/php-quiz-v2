@@ -39,17 +39,8 @@ if ($formSubmitted) {
 $question = new Question();
 $question = $question->findById(1);
 
-$statement = $databaseHandler->prepare('SELECT * FROM `answer` WHERE `question_id` = :questionId');
-$statement->execute([':questionId' => $question->getId()]);
-$allAnswersData = $statement->fetchAll();
-foreach ($allAnswersData as $answerData) {
-    $answer = new Answer(
-        $answerData['id'],
-        $answerData['text'],
-    );
-    $answer->setQuestion($question);
-    $answers[] = $answer;
-}
+$answer = new Answer();
+$answers = $answer->findByQuestion($question);
 
 ?>
 

@@ -467,3 +467,126 @@ $question = new Question(
  Et écrire ceci.
  $question = new Question();
 $question = $question->findById(1);
+
+29. Si la question demandée n'existe pas (10, par exemple. J'en ai 5.), je voudrais envoyer null.
+    $questionData = $statement->fetch();
+
+        if ($questionData === false) {
+            return null;
+        }
+        
+        return new Question(
+            $questionData['id'],
+            $questionData['text'],
+            null,
+            $questionData['rank']
+        );
+
+30. Je voudrais faire une méthode qui associe des réponses à une question présice. J'écris une méthode dans Answer.php.
+
+Je peux passer l'objet Question à cette méthode comme paramètre.
+
+  public function findByQuestion(Question $question): array
+    {
+    }
+
+31. Je connecte à la base de données, je prépare la requette, j'execute la requette, et je cherche des resultats avec fetchAll();
+  public function findByQuestion(Question $question): array
+    {
+        $databaseHandler = new PDO('mysql:host=localhost;dbname=quizpoo', 'root', 'root');
+        $statement = $databaseHandler->prepare('SELECT * FROM `answer` WHERE `question_id` = :questionId');
+        $statement->execute([':questionId' => $question->getId()]);
+        $statement->fetchAll();
+    }
+
+32. Maintenant, dans l'index je peux supprimer tous ceci
+$statement = $databaseHandler->prepare('SELECT * FROM `answer` WHERE `question_id` = :questionId');
+$statement->execute([':questionId' => $question->getId()]);
+$allAnswersData = $statement->fetchAll();
+foreach ($allAnswersData as $answerData) {
+    $answer = new Answer(
+        $answerData['id'],
+        $answerData['text'],
+    );
+    $answer->setQuestion($question);
+    $answers[] = $answer;
+}
+
+et écrire ceci:
+$answer = new Answer();
+$answer = $answer->findByQuestion($question);
+
+33. Si je fais un  var_dump($statement->fetchAll());
+
+  public function findByQuestion(Question $question)
+    {
+        $databaseHandler = new PDO('mysql:host=localhost;dbname=quizpoo', 'root', 'root');
+        $statement = $databaseHandler->prepare('SELECT * FROM `answer` WHERE `question_id` = :questionId');
+        $statement->execute([':questionId' => $question->getId()]);
+        var_dump($statement->fetchAll());
+       die();
+    }
+
+    Résultat, j'ai 4 réponse associées à la question 1:
+
+    (array) [4 elements]
+0: 
+(array) [6 elements]
+id: (string) "2"
+0: (string) "2"
+text: (string) "5"
+1: (string) "5"
+question_id: (string) "1"
+2: (string) "1"
+1: 
+(array) [6 elements]
+id: (string) "3"
+0: (string) "3"
+text: (string) "7"
+1: (string) "7"
+question_id: (string) "1"
+2: (string) "1"
+2: 
+(array) [6 elements]
+id: (string) "4"
+0: (string) "4"
+text: (string) "11"
+1: (string) "11"
+question_id: (string) "1"
+2: (string) "1"
+3: 
+(array) [6 elements]
+id: (string) "5"
+0: (string) "5"
+text: (string) "235"
+1: (string) "235"
+question_id: (string) "1"
+2: (string) "1"
+
+34. Les données sont sous forme d'un tableau. 
+Je les transforme en objet:
+
+     $answersData = $statement->fetchAll();
+        foreach ($answersData as $answerData) {
+            $answers[] = new Answer(
+                $answerData['id'],
+                $answerData['text'],
+                $question
+            );
+        }
+
+35. J'ajoute return $answers;
+       foreach ($answersData as $answerData) {
+            $answers[] = new Answer(
+                $answerData['id'],
+                $answerData['text'],
+                $question
+            );
+        }
+      
+        return $answers;
+
+36. A l'index, je peux écrire ceci
+$answers = $answer->findByQuestion($question);
+
+37. 
