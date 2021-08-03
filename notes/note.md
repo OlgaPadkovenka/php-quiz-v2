@@ -239,4 +239,124 @@ Je peux mettre l'objet dans le constructeur
 
 Cela marche pareil.
 
-15. Dans la Question, j'ai un rightAnswerId qui est un nombre, m'ai je voudrais avoir un objet Réponse avec une bonne réponse.
+15. Dans la Question, j'ai un rightAnswerId qui est un nombre, mais je voudrais avoir un objet Réponse avec une bonne réponse.
+
+    private ?int $rightAnswerId;
+    devient
+    private ?Answer $rightAnswer;
+
+J'adapte le constructeur et la méthode get, j'ajoute la méthode set pour pouvoir modifier Answer dans la Question.
+
+  public function setRightAnswer(?Answer $answer)
+    {
+        $this->rightAnswer = $answer;
+    }
+
+16. Dans l'index, je supprime  $questionData['right_answer_id'], parce que je n'en ai besoin. Pour afficher la question, je n'ai pas besoin de savoir une bonne réponse.
+$question = new Question(
+    $questionData['id'],
+    $questionData['text'],
+    $questionData['right_answer_id'],
+    $questionData['rank']
+);
+
+$question = new Question(
+    $questionData['id'],
+    $questionData['text'],
+    $questionData['rank']
+);
+
+17. J'ai besoin de savoir une bonne réponse quand le formulaire est envoyé. 
+
+//Si le formulaire vient d'être envoyé
+if ($formSubmitted) {
+
+    //Je récupère la question précedénte en base de données
+    $statement = $databaseHandler->prepare('SELECT * FROM `question` WHERE `id` = :id');
+    $statement->execute([':id' => $_POST['current-question']]);
+    $questionData = $statement->fetch();
+    $previousQuestion = new Question(
+        $questionData['id'],
+        $questionData['text'],
+        $questionData['right_answer_id'],
+        $questionData['rank']
+    );
+
+    //je vérifie, si la réponse fournie par l'utilisateur est une bonne réponse.
+    $rightlyAnswered = intval($_POST['answer']) === $previousQuestion->getRightAnswerId();
+}
+
+Avant j'ai comparé intval($_POST['answer']) === $previousQuestion->getRightAnswerId(), maintenant je n'ai pas de getRightAnswerId() dans la Question. A la place j'ai un objet Réponse qui garde la bonne réponse.
+
+18. D'abord, je voudrais changer la requette.
+
+    $statement = $databaseHandler->prepare(
+        'SELECT
+                `question`.`id`,
+                `answer`.`id` as `right_answer_id`,
+                `answer`.`text` as `right_answer_text`
+         FROM   `question`
+         JOIN   `answer` ON `answer`.`id` = `question`.`right_answer_id`
+         WHERE  `question`.`id` = :id'
+    );
+
+19. Je change mon objet Question pour pouvoir vérifier une bonne réponse.
+
+Ce que j'avais avant.
+  $statement->execute([':id' => $_POST['current-question']]);
+    $questionData = $statement->fetch();
+    $previousQuestion = new Question(
+        $questionData['id'],
+        $questionData['text'],
+        $questionData['right_answer_id'],
+        $questionData['rank']
+    );
+
+Je peux supprimer 
+        $questionData['text'],
+        $questionData['right_answer_id'],
+        $questionData['rank']
+parce que je n'ai en ai pas besoin.
+
+20. 
+  $previousQuestion = new Question(
+        $questionData['id'],
+        '',
+        new Answer(
+            $questionData['right_answer_id'],
+            $questionData['right_answer_text']
+        ),
+        null,
+    );
+
+    Mon objet Question est construite de cette manière 
+
+      public function __construct(
+        ?int $id = null,
+        string $text = '',
+        ?Answer $rightAnswer = null,
+        ?int $rank = null
+    ) {
+        $this->id = $id;
+        $this->text = $text;
+        $this->rightAnswer = $rightAnswer;
+        $this->rank = $rank;
+    }
+
+    - id qui peut être null,
+    - text qui peut être vide,
+    - objet Answer qui peut être null,
+    - rank qui peut être null.
+
+    D'où cette structure: 
+      $previousQuestion = new Question(
+        $questionData['id'],
+        '',
+        new Answer(
+            $questionData['right_answer_id'],
+            $questionData['right_answer_text']
+        ),
+        null,
+    );
+
+    21. 

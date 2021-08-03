@@ -11,14 +11,25 @@ $formSubmitted = $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['answer']
 if ($formSubmitted) {
 
     //Je récupère la question précedénte en base de données
-    $statement = $databaseHandler->prepare('SELECT * FROM `question` WHERE `id` = :id');
+    $statement = $databaseHandler->prepare(
+        'SELECT
+                `question`.`id`,
+                `answer`.`id` as `right_answer_id`,
+                `answer`.`text` as `right_answer_text`
+         FROM   `question`
+         JOIN   `answer` ON `answer`.`id` = `question`.`right_answer_id`
+         WHERE  `question`.`id` = :id'
+    );
     $statement->execute([':id' => $_POST['current-question']]);
     $questionData = $statement->fetch();
     $previousQuestion = new Question(
         $questionData['id'],
-        $questionData['text'],
-        $questionData['right_answer_id'],
-        $questionData['rank']
+        '',
+        new Answer(
+            $questionData['right_answer_id'],
+            $questionData['right_answer_text']
+        ),
+        null,
     );
 
     //je vérifie, si la réponse fournie par l'utilisateur est une bonne réponse.
@@ -30,7 +41,6 @@ $questionData = $statement->fetch();
 $question = new Question(
     $questionData['id'],
     $questionData['text'],
-    $questionData['right_answer_id'],
     $questionData['rank']
 );
 
